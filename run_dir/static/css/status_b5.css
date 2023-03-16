@@ -26,6 +26,10 @@ multiple places and typically control typography, or other common elements.
 
 body {
   padding-top: 60px;
+  background-image: url('/static/img/giphy.gif');
+  background-position: 102.5% 2%;
+  background-repeat: no-repeat;
+  background-size: 15%;
 }
 
 /* Internal links should not be hidden behind top banner */
