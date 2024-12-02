@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+<div class="tab-pane fade " id="tab_sample_tab_content"></div>
+    <div class="container-fluid" id="project_samples_vue">
+        <v-table project_id="{{project}}"/>
+    </div>
+</div>
+
+
+<!-- development version, includes helpful console warnings -->
+<script src="/static/js/vue.v3.2.47.global.prod.js"></script>
+<script src="/static/js/axios.v1.3.4.min.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<script src="/static/js/project_samples_tab.js?v={{ gs_globals['git_commit'] }}"></script>
+
+
