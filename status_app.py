@@ -531,6 +531,14 @@ class Application(tornado.web.Application):
         # project summary - reports tab, for multiqc reports and yggdrasil reports
         self.reports_path = settings.get("reports_path")
 
+        if self.reports_path is None:
+            if settings.get("multiqc_path") is not None:
+                print(
+                    "WARNING: 'reports_path' is not set in settings.yaml, "
+                    "using 'multiqc_path' instead"
+                )
+                self.reports_path = settings.get("multiqc_path")
+
         # MinKNOW reports
         self.minknow_reports_path = settings.get("minknow_reports_path")
 
