@@ -144,6 +144,8 @@ class SingleCellSampleSummaryReportHandler(SafeHandler):
 
         else:
             reports = []
+            if not os.path.exists(sample_summary_reports_path):
+                return reports
             for item in os.listdir(sample_summary_reports_path):
                 if os.path.isdir(
                     os.path.join(sample_summary_reports_path, item)
