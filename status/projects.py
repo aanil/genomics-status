@@ -467,10 +467,10 @@ class ProjectsBaseDataHandler(SafeHandler):
                 elif (closedflag or filter_projects == "all") and closed_condition:
                     filtered_projects.append(row)
                 # open projects
-                elif openflag and open_condition and not is_closed_project:
+                elif openflag and open_condition:
                     if filter_projects == "all":
                         filtered_projects.append(row)
-                    elif "open" in filter_projects:
+                    elif "open" in filter_projects and not is_closed_project:
                         filtered_projects.append(row)
                     # ongoing projects
                     elif (
