@@ -337,8 +337,13 @@ class ProjectsBaseDataHandler(SafeHandler):
             end_queue_date,
             start_close_date,
             end_close_date,
-        ) = [None] * 6
+            start_aborted_date,
+            end_aborted_date,
+        ) = [None] * 8
 
+        if "aborted" in filter_projects:
+            end_aborted_date = self.get_argument("youngest_aborted_date", "")
+            start_aborted_date = self.get_argument("oldest_aborted_date", "")
         if closedflag:
             end_close_date = self.get_argument("youngest_close_date", default_end_date)
             start_close_date = self.get_argument(
@@ -411,6 +416,9 @@ class ProjectsBaseDataHandler(SafeHandler):
             for row in itertools.chain.from_iterable(view_calls):
                 p_info = row["value"]
                 ptype = p_info["details"].get("type")
+                # This is in case the project is closed, but the closed condition is not met, e.g. if the close date is outside the requested range.
+                # In that case, we don't want to include the project in the list of open projects.
+                is_closed_project = False
 
                 if not (projtype == "All" or ptype == projtype):
                     continue
@@ -420,6 +428,7 @@ class ProjectsBaseDataHandler(SafeHandler):
                 ] * 4
 
                 if "close_date" in p_info:
+                    is_closed_project = True
                     closed_condition = p_info["close_date"] >= str(
                         start_close_date
                     ) and p_info["close_date"] <= str(end_close_date)
@@ -453,7 +462,16 @@ class ProjectsBaseDataHandler(SafeHandler):
                         and "aborted" in p_info["project_summary"]
                     )
                 ):
-                    filtered_projects.append(row)
+                    if end_aborted_date and start_aborted_date:
+                        aborted_date = p_info["details"].get("aborted")
+                        if not aborted_date and "project_summary" in p_info:
+                            aborted_date = p_info["project_summary"].get("aborted")
+                        if aborted_date >= str(
+                            start_aborted_date
+                        ) and aborted_date <= str(end_aborted_date):
+                            filtered_projects.append(row)
+                    else:
+                        filtered_projects.append(row)
                 # pending reviews projects
                 elif (
                     "review" in filter_projects or filter_projects == "all"
@@ -466,7 +484,7 @@ class ProjectsBaseDataHandler(SafeHandler):
                 elif openflag and open_condition:
                     if filter_projects == "all":
                         filtered_projects.append(row)
-                    elif "open" in filter_projects:
+                    elif "open" in filter_projects and not is_closed_project:
                         filtered_projects.append(row)
                     # ongoing projects
                     elif (
