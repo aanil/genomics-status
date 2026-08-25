@@ -342,7 +342,6 @@ class ProjectsBaseDataHandler(SafeHandler):
         ) = [None] * 8
 
         if "aborted" in filter_projects:
-            abortedflag = True
             end_aborted_date = self.get_argument("youngest_aborted_date", "")
             start_aborted_date = self.get_argument("oldest_aborted_date", "")
         if closedflag:
