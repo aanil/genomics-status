@@ -55,8 +55,8 @@ const vProjectsStatus = {
                     'title': 'Status',
                     'key': 'status',
                     'secondary_key': 'status_fields',
-                    'filter_values': [],
-                    'include_all': true,
+                    'filter_values': ['Ongoing', 'Pending', 'Reception Control'],
+                    'include_all': false,
                     'is_list': false
                 },
                 'type': {
@@ -391,10 +391,10 @@ const vProjectsStatus = {
         /* Only used on project cards page */
         fetchProjects() {
             const curr_date = new Date().toISOString().split('T')[0];
-            const four_weeks_ago = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+            const six_weeks_ago = new Date(Date.now() - 42 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
             axios
-                .get(`/api/v1/projects?list=pending,open,closed,aborted&oldest_close_date=${four_weeks_ago}
-                        &youngest_close_date=${curr_date}&oldest_aborted_date=${four_weeks_ago}
+                .get(`/api/v1/projects?list=pending,open,closed,aborted&oldest_close_date=${six_weeks_ago}
+                        &youngest_close_date=${curr_date}&oldest_aborted_date=${six_weeks_ago}
                         &youngest_aborted_date=${curr_date}&type=All`)
                 .then(response => {
                     let data = response.data
