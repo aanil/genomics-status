@@ -337,8 +337,14 @@ class ProjectsBaseDataHandler(SafeHandler):
             end_queue_date,
             start_close_date,
             end_close_date,
-        ) = [None] * 6
+            start_aborted_date,
+            end_aborted_date,
+        ) = [None] * 8
 
+        if "aborted" in filter_projects:
+            abortedflag = True
+            end_aborted_date = self.get_argument("youngest_aborted_date", "")
+            start_aborted_date = self.get_argument("oldest_aborted_date", "")
         if closedflag:
             end_close_date = self.get_argument("youngest_close_date", default_end_date)
             start_close_date = self.get_argument(
@@ -457,7 +463,16 @@ class ProjectsBaseDataHandler(SafeHandler):
                         and "aborted" in p_info["project_summary"]
                     )
                 ):
-                    filtered_projects.append(row)
+                    if end_aborted_date and start_aborted_date:
+                        aborted_date = p_info["details"].get("aborted")
+                        if not aborted_date and "project_summary" in p_info:
+                            aborted_date = p_info["project_summary"].get("aborted")
+                        if aborted_date >= str(
+                            start_aborted_date
+                        ) and aborted_date <= str(end_aborted_date):
+                            filtered_projects.append(row)
+                    else:
+                        filtered_projects.append(row)
                 # pending reviews projects
                 elif (
                     "review" in filter_projects or filter_projects == "all"
