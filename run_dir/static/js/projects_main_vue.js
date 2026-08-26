@@ -19,7 +19,7 @@ const vProjectsStatus = {
             /* Used to determine behaviour of the app depending on if it's a single project or multiple projects */
             single_project_mode: false,
             /* Only used on project cards page */
-            sortBy: 'status',
+            sortBy: 'queued_date',
             card_columns: ['library_construction_method'],
             descending: true,
             search_value: '',
@@ -163,8 +163,8 @@ const vProjectsStatus = {
                 })
             }
 
-            if (this.sortBy == 'most_recent_date') {
-                tempProjects = this.sortOnMostRecentDate(tempProjects)
+            if (this.sortBy == 'most_recent_date' || this.sortBy == 'open_date' || this.sortBy == 'queued_date') {
+                tempProjects = this.sortOnADate(tempProjects)
             } else if (this.sortBy == 'project_id') {
                 // Sort on project_id
                 tempProjects = tempProjects.sort((a, b) => {
@@ -197,7 +197,8 @@ const vProjectsStatus = {
                 })
             }
 
-            if (this.descending == true) {
+            // Only reverse for non-date sorts (date sorts handle descending internally)
+            if (this.descending == true && this.sortBy != 'most_recent_date' && this.sortBy != 'open_date' && this.sortBy != 'queued_date') {
                 tempProjects = tempProjects.reverse()
             }
 
@@ -505,6 +506,7 @@ const vProjectsStatus = {
                 return []
             };
             let summaryDates = project['summary_dates'];
+            console.log(`Project ${project['project_id']} summary dates:`, summaryDates);
             if (Object.keys(summaryDates).length == 0) {
                 return []
             };
@@ -544,31 +546,47 @@ const vProjectsStatus = {
             }
             return 'warning'
         },
-        sortOnMostRecentDate(projects_to_be_sorted) {
-            // Sort by most recent date            
+        sortOnADate(projects_to_be_sorted) {
             projects_to_be_sorted = projects_to_be_sorted.sort((a, b) => {
                 let proj_a = this.project_details[a[0]]
                 let proj_b = this.project_details[b[0]]
-
+                let result = 0;
+                let date_a, date_b;
+                // Sort by most recent date
+                // Most recent date stands for the most recent a project has been updated, 
+                // which could include running notes, worksets added etc
+                // Currently it only looks at the summary_dates field, so this has to be 
+                // updated in the future to include other fields as well
                 if (this.sortBy == 'most_recent_date') {
-                    /* First deal with missing dates */
-                    if ((this.mostRecentDate(proj_a) == undefined) && (this.mostRecentDate(proj_b) == undefined)) {
-                        return 0
-                    }
-                    if (this.mostRecentDate(proj_a) == undefined) {
-                        // Missing dates will be the most recent
-                        return 1
-                    } else if (this.mostRecentDate(proj_b) == undefined){
-                        return -1
-                    }
-                    /* Then deal with actual dates */
-                    if (this.mostRecentDate(proj_a) > this.mostRecentDate(proj_b)) {
-                        return 1
-                    } else if (this.mostRecentDate(proj_a) < this.mostRecentDate(proj_b)) {
-                        return -1
-                    }
-                    return 0
-                };
+                    date_a = this.mostRecentDate(proj_a)
+                    date_b = this.mostRecentDate(proj_b)
+                }
+                else if(this.sortBy == 'open_date'){
+                    date_a = proj_a.open_date;
+                    date_b = proj_b.open_date;
+                }
+                else if(this.sortBy == 'queued_date'){
+                    date_a = proj_a.queued;
+                    date_b = proj_b.queued;
+                }
+                /* First deal with missing dates */
+                if (date_a === undefined && date_b === undefined) {
+                        return 0;
+                }
+                if (date_a === undefined) {
+                    return 1; // Undefined dates will be last
+                }
+                if (date_b === undefined) {
+                    return -1; // Undefined dates will be last
+                }
+                /* Then deal with actual dates */
+                if (date_a > date_b) {
+                    result = 1;
+                } else if (date_a < date_b) {
+                    result = -1;
+                }
+                // Apply descending flag
+                return this.descending ? -result : result;
             })
             return projects_to_be_sorted
         },

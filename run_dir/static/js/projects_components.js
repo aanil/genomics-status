@@ -1253,6 +1253,8 @@ export const vProjectCards = {
                 <div class="col-2 form-floating">
                     <select id="sort_by" class="form-select" aria-label="Sort by" v-model="this.$root.sortBy">
                         <option value="most_recent_date">Most recent date</option>
+                        <option value="open_date">Open Date</option>
+                        <option value="queued_date">Queued Date</option>
                         <option value="project_id">Project ID</option>
                         <option value="status">Status</option>
                     </select>
