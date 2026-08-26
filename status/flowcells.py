@@ -782,30 +782,43 @@ class ReadsTotalHandler(SafeHandler):
     URL: /reads_total/([^/]*)
     """
 
-    def get(self, query):
-        ordereddata = OrderedDict()
+    def get(self):
         self.set_header("Content-type", "text/html")
         t = self.application.loader.load("reads_total.html")
 
+        self.write(
+            t.generate(
+                gs_globals=self.application.gs_globals,
+                user=self.get_current_user(),
+            )
+        )
+
+
+class ReadsTotalDataHandler(SafeHandler):
+    """API endpoint for reads_total data
+
+    Loaded through /api/v1/reads_total/([^/]*)$
+    Returns JSON with reads data for the given query
+    """
+
+    def get(self, query):
         if not query:
-            self.write(
-                t.generate(
-                    gs_globals=self.application.gs_globals,
-                    user=self.get_current_user(),
-                    readsdata=ordereddata,
-                    query=query,
-                )
-            )
+            data = {}
         else:
-            ordereddata = self.get_total_reads(self.application, query)
-            self.write(
-                t.generate(
-                    gs_globals=self.application.gs_globals,
-                    user=self.get_current_user(),
-                    readsdata=ordereddata,
-                    query=query,
-                )
-            )
+            data = self.get_total_reads(self.application, query)
+
+        # Check if any data is HiSeq X to mark in response
+        is_hiseq_x = False
+        for sample_rows in data.values():
+            for row in sample_rows:
+                if row.get("run_mode") == "HiSeq X":
+                    is_hiseq_x = True
+                    break
+
+        data["isHiseqX"] = is_hiseq_x
+
+        self.set_header("Content-type", "application/json")
+        self.write(json.dumps(data))
 
     @staticmethod
     def get_total_reads(app, query):

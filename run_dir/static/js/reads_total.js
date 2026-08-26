@@ -27,24 +27,19 @@ function isRowInitiallyChecked(d) {
 
 const vReadsTotalApp = {
     data() {
-        // Pre-compute initial checkbox state from embedded data
-        const checkedState = {};
-        for (const [sample, rows] of Object.entries(READS_DATA)) {
-            if (sample === 'isHiseqX') continue;
-            for (const d of rows) {
-                checkedState[`${sample}_${d.fcp}`] = isRowInitiallyChecked(d);
-            }
-        }
         return {
-            readsData: READS_DATA,
-            isHiseqX: 'isHiseqX' in READS_DATA,
-            query: QUERY,
+            readsData: {},
+            isHiseqX: false,
+            query: '',
             checkKeyFilter: '',
             highlightedSample: null,
-            checkedState,
+            checkedState: {},
             chartInstance: null,
+            loading: true,
+            error: null,
         };
     },
+    
     computed: {
         hasData() {
             return this.sampleNames.length > 0;
@@ -73,7 +68,6 @@ const vReadsTotalApp = {
                     }
                 });
                 const w_q30 = checked > 0 ? w_q30_sum / checked : -1;
-                // Use first row with run_mode info to determine the sample-level threshold for charting
                 const firstRow = rows.find(d => d.run_mode != null) || rows[0];
                 const threshold = firstRow ? getRowThreshold(firstRow) : 85.0;
                 return { sample, checked, unchecked, w_q30, threshold };
@@ -91,15 +85,52 @@ const vReadsTotalApp = {
             return this.isHiseqX ? 'Clusters' : 'Reads';
         },
     },
+    
     watch: {
         summaryRows() {
             this.$nextTick(() => this.renderChart());
         }
     },
+    
     mounted() {
-        this.$nextTick(() => this.renderChart());
+        // Extract query from URL path
+        const pathParts = window.location.pathname.split('/');
+        this.query = pathParts[pathParts.length - 1] || '';
+        
+        if (this.query) {
+            this.fetchData();
+        } else {
+            this.loading = false;
+        }
     },
+    
     methods: {
+        fetchData() {
+            axios.get(`/api/v1/reads_total/${this.query}`)
+                .then(response => {
+                    const data = response.data;
+                    this.isHiseqX = data.isHiseqX || false;
+                    delete data.isHiseqX;
+                    this.readsData = data;
+                    
+                    // Initialize checkbox state
+                    this.checkedState = {};
+                    for (const [sample, rows] of Object.entries(this.readsData)) {
+                        for (const d of rows) {
+                            this.checkedState[`${sample}_${d.fcp}`] = isRowInitiallyChecked(d);
+                        }
+                    }
+                    
+                    this.loading = false;
+                    this.$nextTick(() => this.renderChart());
+                })
+                .catch(error => {
+                    console.error('Error fetching reads data:', error);
+                    this.error = 'Failed to load data. Please try again.';
+                    this.loading = false;
+                });
+        },
+        
         q30Class(d) {
             if (d.fcp.includes('_UD')) return '';
             const threshold = getRowThreshold(d);
@@ -222,7 +253,21 @@ const vReadsTotalApp = {
             </div>
         </div>
 
-        <template v-if="query === ''">
+        <template v-if="loading && query">
+            <div class="alert alert-info mt-3">
+                <span>Loading data...</span>
+            </div>
+        </template>
+
+        <template v-else-if="error">
+            <div class="alert alert-danger mt-3">
+                <h4>Error</h4>
+                <p>{{ error }}</p>
+                <p>Please try again with the box above.</p>
+            </div>
+        </template>
+
+        <template v-else-if="query === ''">
             <h3 class="mt-3">Welcome to the read count totals page!</h3>
             <p>To begin, enter a search term above and click <code>Search</code></p>
             <p>The search works by matching any sample names that begin with your search term. So P123 will match samples <code>P123_001</code> and <code>P1234_003</code></p>
