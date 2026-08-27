@@ -310,7 +310,7 @@ const ReadsTotalComponent = {
                                     <thead>
                                         <tr class="darkth">
                                             <th><a class="text-decoration-none" :href="'/project/' + projectFromSample(sample)">{{ sample }}</a></th>
-                                            <th>%&nbsp;&gt;&nbsp;q30</th>
+                                            <th>% > q30</th>
                                             <th>Add</th>
                                             <th>{{ countLabel }}</th>
                                         </tr>
