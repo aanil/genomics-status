@@ -1,33 +1,13 @@
 // Used by reads_total.html
 
-const THRESHOLD_DICT = {
-    'HiSeq X': { 'default': 75.0 },
-    'MiSeq': { '250': 60.0, '150': 70.0, '100': 75.0, 'default': 80.0 },
-    'default': { '250': 60.0, '150': 75.0, '100': 80.0, 'default': 85.0 }
-};
-
-function getRowThreshold(d) {
-    const run_mode = (d.run_mode === 'HiSeq X' || d.run_mode === 'MiSeq') ? d.run_mode : 'default';
-    let run_setup = 'default';
-    if (d.run_mode !== 'HiSeq X') {
-        if (d.longer_read_length >= 250) run_setup = '250';
-        else if (d.longer_read_length >= 150) run_setup = '150';
-        else if (d.longer_read_length >= 100) run_setup = '100';
-    }
-    return THRESHOLD_DICT[run_mode][run_setup];
-}
-
-function isRowInitiallyChecked(d) {
-    if (d.fcp.includes('_UD')) return false;
-    const threshold = getRowThreshold(d);
-    return d.q30 !== null && d.q30 !== undefined &&
-           parseFloat(d.q30) >= threshold &&
-           (d.sample_status ?? '') !== 'Failed';
-}
-
 const vReadsTotalApp = {
     data() {
         return {
+            THRESHOLD_DICT: {
+                'HiSeq X': { 'default': 75.0 },
+                'MiSeq': { '250': 60.0, '150': 70.0, '100': 75.0, 'default': 80.0 },
+                'default': { '250': 60.0, '150': 75.0, '100': 80.0, 'default': 85.0 }
+            },
             readsData: {},
             isHiseqX: false,
             query: '',
@@ -69,7 +49,7 @@ const vReadsTotalApp = {
                 });
                 const w_q30 = checked > 0 ? w_q30_sum / checked : -1;
                 const firstRow = rows.find(d => d.run_mode != null) || rows[0];
-                const threshold = firstRow ? getRowThreshold(firstRow) : 85.0;
+                const threshold = firstRow ? this.getRowThreshold(firstRow) : 85.0;
                 return { sample, checked, unchecked, w_q30, threshold };
             });
         },
@@ -117,7 +97,7 @@ const vReadsTotalApp = {
                     this.checkedState = {};
                     for (const [sample, rows] of Object.entries(this.readsData)) {
                         for (const d of rows) {
-                            this.checkedState[`${sample}_${d.fcp}`] = isRowInitiallyChecked(d);
+                            this.checkedState[`${sample}_${d.fcp}`] = this.isRowInitiallyChecked(d);
                         }
                     }
                     
@@ -131,9 +111,26 @@ const vReadsTotalApp = {
                 });
         },
         
+        getRowThreshold(d) {
+            const run_mode = (d.run_mode === 'HiSeq X' || d.run_mode === 'MiSeq') ? d.run_mode : 'default';
+            let run_setup = 'default';
+            if (d.run_mode !== 'HiSeq X') {
+                if (d.longer_read_length >= 250) run_setup = '250';
+                else if (d.longer_read_length >= 150) run_setup = '150';
+                else if (d.longer_read_length >= 100) run_setup = '100';
+            }
+            return this.THRESHOLD_DICT[run_mode][run_setup];
+        },
+        isRowInitiallyChecked(d) {
+            if (d.fcp.includes('_UD')) return false;
+            const threshold = this.getRowThreshold(d);
+            return d.q30 !== null && d.q30 !== undefined &&
+                   parseFloat(d.q30) >= threshold &&
+                   (d.sample_status ?? '') !== 'Failed';
+        },
         q30Class(d) {
             if (d.fcp.includes('_UD')) return '';
-            const threshold = getRowThreshold(d);
+            const threshold = this.getRowThreshold(d);
             if (d.q30 !== null && d.q30 !== undefined && parseFloat(d.q30) >= threshold) {
                 return 'table-success';
             }
