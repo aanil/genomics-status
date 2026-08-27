@@ -782,7 +782,7 @@ class ReadsTotalHandler(SafeHandler):
     URL: /reads_total/([^/]*)
     """
 
-    def get(self):
+    def get(self, query):
         self.set_header("Content-type", "text/html")
         t = self.application.loader.load("reads_total.html")
 
