@@ -73,9 +73,8 @@ const vReadsTotalApp = {
     },
     
     mounted() {
-        // Extract query from URL path
-        const pathParts = window.location.pathname.split('/');
-        this.query = pathParts[pathParts.length - 1] || '';
+        // Read query from server-injected data attribute
+        this.query = document.getElementById('reads_total_app').dataset.query || '';
         
         if (this.query) {
             this.fetchData();

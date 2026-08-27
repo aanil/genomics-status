@@ -783,6 +783,11 @@ class ReadsTotalHandler(SafeHandler):
     """
 
     def get(self):
+        query = (
+            self.request.path.split("/reads_total/", 1)[-1]
+            if "/reads_total/" in self.request.path
+            else ""
+        )
         self.set_header("Content-type", "text/html")
         t = self.application.loader.load("reads_total.html")
 
@@ -790,6 +795,7 @@ class ReadsTotalHandler(SafeHandler):
             t.generate(
                 gs_globals=self.application.gs_globals,
                 user=self.get_current_user(),
+                query=query,
             )
         )
 
