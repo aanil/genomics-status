@@ -439,7 +439,7 @@ class Application(tornado.web.Application):
             ("/project_cards", ProjectCardsHandler),
             ("/proj_meta", ProjMetaCompareHandler),
             ("/proj_summary_report/([^/]*)$", ProjectSummaryReportHandler),
-            ("/reads_total(?:/[^/]*)?$", ReadsTotalHandler),
+            ("/reads_total/([^/]*)$", ReadsTotalHandler),
             ("/rec_ctrl_view/([^/]*)$", RecCtrlDataHandler),
             ("/sample_requirements", SampleRequirementsViewHandler),
             ("/sample_requirements_preview", SampleRequirementsPreviewHandler),
