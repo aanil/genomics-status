@@ -1,6 +1,7 @@
 // Used by reads_total.html
 
-const vReadsTotalApp = {
+// Component definition - can be imported and used in other Vue apps
+const ReadsTotalComponent = {
     data() {
         return {
             THRESHOLD_DICT: {
@@ -353,5 +354,13 @@ const vReadsTotalApp = {
     `
 };
 
-const app = Vue.createApp(vReadsTotalApp);
-app.mount('#reads_total_app');
+// Auto-mount if used as a standalone page
+if (document.getElementById('reads_total_app')) {
+    const app = Vue.createApp(ReadsTotalComponent);
+    app.mount('#reads_total_app');
+}
+
+// Export for use in other Vue apps
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ReadsTotalComponent;
+}
