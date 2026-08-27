@@ -2,6 +2,7 @@
 
 // Component definition - can be imported and used in other Vue apps
 const ReadsTotalComponent = {
+    props: ['query'],
     data() {
         return {
             THRESHOLD_DICT: {
@@ -11,7 +12,6 @@ const ReadsTotalComponent = {
             },
             readsData: {},
             isHiseqX: false,
-            query: '',
             checkKeyFilter: '',
             highlightedSample: null,
             checkedState: {},
@@ -74,13 +74,9 @@ const ReadsTotalComponent = {
     },
     
     mounted() {
-        // Read query from server-injected data attribute
-        this.query = document.getElementById('reads_total_app').dataset.query || '';
-        
         if (this.query) {
+            // Query was passed as prop, fetch data
             this.fetchData();
-        } else {
-            this.loading = false;
         }
     },
     
@@ -354,13 +350,10 @@ const ReadsTotalComponent = {
     `
 };
 
-// Auto-mount if used as a standalone page
-if (document.getElementById('reads_total_app')) {
-    const app = Vue.createApp(ReadsTotalComponent);
-    app.mount('#reads_total_app');
-}
-
-// Export for use in other Vue apps
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ReadsTotalComponent;
-}
+  const app = Vue.createApp({
+    components: { ReadsTotalComponent },
+    data() {
+      return { query: "{{ query }}" };
+    }
+  });
+  app.mount('#reads_total_app');

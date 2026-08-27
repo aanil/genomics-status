@@ -8,8 +8,9 @@ Description: Summing tool for the reads
 -->
 
 {% block stuff %}
-
-<div id="reads_total_app" data-query="{{ query }}"></div>
+<div id="reads_total_app">
+    <reads-total-component :query="'{{ query }}'"></reads-total-component>
+</div>
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
