@@ -379,6 +379,30 @@ const vProjectCreationForm = {
             }
             return this.fieldsPerGroup[group_identifier];
         },
+        loadLatestForm() {
+            // Save current form data
+            const currentFormData = Object.assign({}, this.$root.formData);
+            // Load the latest form (no version argument)
+            axios
+                .get('/api/v1/project_creation_form')
+                .then(response => {
+                    this.$root.jsonForm = response.data.form;
+                    // After form is set, restore values for fields that still exist
+                    this.$nextTick(() => {
+                        const newFields = this.$root.fields;
+                        this.$root.formData = {};
+                        Object.keys(newFields).forEach(fieldId => {
+                            if (currentFormData[fieldId] !== undefined) {
+                                this.$root.formData[fieldId] = currentFormData[fieldId];
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    alert(`Error loading latest form: ${error.message}`);
+                    console.log(error);
+                });
+        },
         retrieveProjectData() {
             if (!this.projectIdToRetrieve.trim()) {
                 alert('Please enter a project ID');
@@ -644,7 +668,12 @@ const vProjectCreationForm = {
                             </div>
                         </div>
                         <div class="mt-3 p-3 bg-light rounded">
-                            <h5 class="mb-2">Form Information</h5>
+                            <div class="d-flex align-items-center mb-2">
+                                <h5 class="mb-0 mr-1">Form Information</h5>
+                                <button v-if="isEditingProject" type="button" class="btn btn-sm btn-outline-primary" @click="loadLatestForm" title="Load the latest published form version, keeping current values for matching fields">
+                                    <i class="fa fa-refresh mr-1"></i>Load Latest Form
+                                </button>
+                            </div>
                             <template v-if="this.$root.jsonForm && this.$root.jsonForm['_id']">
                                 <div class="row">
                                     <div class="col-md-6">
