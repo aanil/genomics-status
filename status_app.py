@@ -56,6 +56,7 @@ from status.flowcells import (
     FlowcellsHandler,
     FlowcellsInfoDataHandler,
     OldFlowcellsInfoDataHandler,
+    ReadsTotalDataHandler,
     ReadsTotalHandler,
 )
 from status.hashtag_csv import HashTagCSVHandler
@@ -333,6 +334,7 @@ class Application(tornado.web.Application):
             ("/api/v1/presets/onloadcheck", PresetsOnLoadHandler),
             ("/api/v1/qpcr_pools", qPCRPoolsDataHandler),
             ("/api/v1/rna_report/([^/]*$)", ProjectRNAMetaDataHandler),
+            ("/api/v1/reads_total/([^/]*)$", ReadsTotalDataHandler),
             ("/api/v1/user_management/roles_teams", RolesAndTeamsHandler),
             ("/api/v1/running_notes/([^/]*)$", RunningNotesDataHandler),
             ("/api/v1/links/([^/]*)$", LinksDataHandler),
