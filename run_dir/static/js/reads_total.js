@@ -1,7 +1,8 @@
 // Used by reads_total.html
 
 // Component definition - can be imported and used in other Vue apps
-const ReadsTotalComponent = {
+const vReadsTotalComponent = {
+    name: 'v-reads-total-component',
     props: ['query'],
     data() {
         return {
@@ -351,7 +352,7 @@ const ReadsTotalComponent = {
 };
 
   const app = Vue.createApp({
-    components: { ReadsTotalComponent },
+    components: { 'v-reads-total-component': vReadsTotalComponent },
     data() {
       return { query: "{{ query }}" };
     }
