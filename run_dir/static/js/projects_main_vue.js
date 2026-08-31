@@ -19,7 +19,7 @@ const vProjectsStatus = {
             /* Used to determine behaviour of the app depending on if it's a single project or multiple projects */
             single_project_mode: false,
             /* Only used on project cards page */
-            sortBy: 'queued_date',
+            sortBy: 'queue_date',
             card_columns: ['library_construction_method'],
             descending: true,
             search_value: '',
@@ -163,7 +163,7 @@ const vProjectsStatus = {
                 })
             }
 
-            if (this.sortBy == 'most_recent_date' || this.sortBy == 'open_date' || this.sortBy == 'queued_date') {
+            if (this.sortBy == 'most_recent_date' || this.sortBy == 'open_date' || this.sortBy == 'queue_date') {
                 tempProjects = this.sortOnADate(tempProjects)
             } else if (this.sortBy == 'project_id') {
                 // Sort on project_id
@@ -198,7 +198,7 @@ const vProjectsStatus = {
             }
 
             // Only reverse for non-date sorts (date sorts handle descending internally)
-            if (this.descending == true && this.sortBy != 'most_recent_date' && this.sortBy != 'open_date' && this.sortBy != 'queued_date') {
+            if (this.descending == true && this.sortBy != 'most_recent_date' && this.sortBy != 'open_date' && this.sortBy != 'queue_date') {
                 tempProjects = tempProjects.reverse()
             }
 
@@ -565,7 +565,7 @@ const vProjectsStatus = {
                     date_a = proj_a.open_date;
                     date_b = proj_b.open_date;
                 }
-                else if(this.sortBy == 'queued_date'){
+                else if(this.sortBy == 'queue_date'){
                     date_a = proj_a.queued;
                     date_b = proj_b.queued;
                 }
