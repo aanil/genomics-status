@@ -284,8 +284,8 @@ class FlowcellsHandler(SafeHandler):
                                 # Transform it to a more human-readable format like "151nt(R1)-8nt(I1)-8nt(I2)-151nt(R2)"
                                 r1, i1, i2, r2 = demux_info["run_setup"].split("_")
                                 fc_data["actual_run_setup"] = (
-                                    f"{r1}nt(R1){f'-{i1}nt(I1)' if i1 != '0' else ''} \
-                                                            {f'-{i2}nt(I2)' if i2 != '0' else ''}{f'-{r2}nt(R2)' if r2 != '0' else ''}"
+                                    f"{r1}nt(R1){f'-{i1}nt(I1)' if i1 != '0' else ''}"
+                                    f"{f'-{i2}nt(I2)' if i2 != '0' else ''}{f'-{r2}nt(R2)' if r2 != '0' else ''}"
                                 )
 
             except Exception as e:
